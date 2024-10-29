@@ -1,3 +1,2 @@
 datasets
-categorical-model.h5
-sequential-model.h5
+tumor-yolov11n.pt
