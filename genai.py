@@ -1,3 +1,4 @@
+from urllib import response
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
@@ -14,9 +15,21 @@ class GenAI:
         self.status = None
         self.message_id = None
         self.client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        self.heading = None
         self.completion_id = None
+        self.prompt = None
         self.assistant_id = os.getenv("ASSISTANT_ID")
+
+    def generate_prompt(self, data_dict):
+
+        prompt = (
+            f"Given the patient details: Tumor Size: {data_dict['tumor_size']} cm², Patient Age: {data_dict['age']} years, "
+            f"Patient Sex: {data_dict['sex']}, Health History: {data_dict['health_history']}. "
+            f"Recommend a step-by-step treatment workflow including initial diagnostics, imaging procedures, surgical options, "
+            f"medications with dosages, radiation therapy recommendations, and follow-up intervals. "
+            f"Highlight specific prescription recommendations, dosages, and any special considerations for treatment."
+        )
+
+        return prompt
 
     # create a thread from OpenAI
 
@@ -25,20 +38,20 @@ class GenAI:
 
         return thread.id
 
-        # create a message to OpenAI and receive it without a stream
+    # create a message to OpenAI and receive it without a stream
 
-    def create_message(self, thread_id, request_message):
+    def create_message(self, thread_id, prompt):
 
         # add message to a thread
         message = self.client.beta.threads.messages.create(
-            thread_id=thread_id, role="user", content=request_message
+            thread_id=thread_id, role="user", content=prompt
         )
 
         # run a thread to the Medical Assistant
 
         run = self.client.beta.threads.runs.create_and_poll(
             thread_id=thread_id,
-            max_completion_tokens=500,
+            max_completion_tokens=1000,
             assistant_id=self.assistant_id,
         )
 
@@ -61,18 +74,17 @@ class GenAI:
                 self.status = "error"
                 return self.response_text, self.status, self.message_id
 
-        else:
-            self.status = "incomplete"
-
-            self.client.beta.threads.runs.cancel(thread_id=thread_id, run_id=run.id)
-
-        return self.response_text, self.status, self.message_id
-
 
 gen_ai = GenAI()
+data_dict = {"tumor_size": "3", "age": "34", "sex": "Female", "health_history": "None"}
+
+
+prompt = gen_ai.generate_prompt(data_dict)
+
 thread_id = gen_ai.create_thread()
 
-result = gen_ai.create_message(thread_id, "what is your role")
+
+response_text, status, message_id = gen_ai.create_message(thread_id, str(prompt))
 
 
-print(result)
+print(response_text)
