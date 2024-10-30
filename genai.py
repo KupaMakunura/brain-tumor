@@ -22,11 +22,15 @@ class GenAI:
     def generate_prompt(self, data_dict):
 
         prompt = (
-            f"Given the patient details: Tumor Size: {data_dict['tumor_size']} cm², Patient Age: {data_dict['age']} years, "
-            f"Patient Sex: {data_dict['sex']}, Health History: {data_dict['health_history']}. "
-            f"Recommend a step-by-step treatment workflow including initial diagnostics, imaging procedures, surgical options, "
-            f"medications with dosages, radiation therapy recommendations, and follow-up intervals. "
-            f"Highlight specific prescription recommendations, dosages, and any special considerations for treatment."
+            f"Patient Details:\n"
+            f"- Age: {data_dict['age']} years\n"
+            f"- Sex: {data_dict['sex']}\n"
+            f"- Tumor Size: {data_dict['tumor_size']} cm²\n"
+            f"- Health History: {data_dict['health_history']}\n"
+            f"- Prior Cancer Treatments: {'Yes' if data_dict['prior_treatments'] else 'No'}\n"
+            f"- Allergies: {data_dict['allergies']}\n"
+            f"- Existing Health Conditions: {data_dict['existing_conditions']}\n"
+            f"- Family History of Cancer: {'Yes' if data_dict['family_history'] else 'No'}\n\n"
         )
 
         return prompt
@@ -76,10 +80,22 @@ class GenAI:
 
 
 gen_ai = GenAI()
-data_dict = {"tumor_size": "3", "age": "34", "sex": "Female", "health_history": "None"}
+
+
+data_dict = {
+    "tumor_size": "3",  # in cm²
+    "age": "34",  # in years
+    "sex": "Female",
+    "health_history": "None",
+    "prior_treatments": False,
+    "allergies": "None",
+    "existing_conditions": "None",
+    "family_history": False,
+}
 
 
 prompt = gen_ai.generate_prompt(data_dict)
+
 
 thread_id = gen_ai.create_thread()
 
