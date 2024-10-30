@@ -59,9 +59,9 @@ class GenAI:
             thread_id=thread_id,
             role="user",
             content=prompt,
-            attachments=(
-                [{"file_id": file_id, "tools": ["image-analysis"]}] if file_id else None
-            ),
+            # attachments=(
+            #     [{"file_id": file_id, "tools": ["image-analysis"]}] if file_id else None
+            # ),
         )
 
         # run a thread to the Medical Assistant
@@ -112,9 +112,9 @@ prompt = gen_ai.generate_prompt(data_dict)
 
 thread_id = gen_ai.create_thread()
 
-file_id = gen_ai.upload_image_prediction("results/heatmaps/heatmap.jpg", thread_id)
+# file_id = gen_ai.upload_image_prediction("results/heatmaps/heatmap.jpg", thread_id)
 
-print("File ID: ", file_id)
+# print("File ID: ", file_id)
 
 
 response_text, status, message_id = gen_ai.create_message(thread_id, str(prompt))

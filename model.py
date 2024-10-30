@@ -15,8 +15,8 @@ class ModelPredictor:
         # set the model params
         self.results = self.model.predict(
             self.image_path,
-            conf=0.25,
-            classes=[0, 1],
+            conf=0.75,
+            classes=[1],
             iou=0.45,
             retina_masks=True,
         )
@@ -82,7 +82,7 @@ class ModelPredictor:
         cv2.imwrite("results/heatmaps/heatmap.jpg", im0)
 
 
-model = ModelPredictor("datasets/no/no100.jpg")
+model = ModelPredictor("datasets/yes/y200.jpg")
 
 model.predict()
 model.set_params()
