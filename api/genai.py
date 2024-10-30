@@ -24,7 +24,7 @@ class GenAI:
             f"Patient Details:\n"
             f"- Age: {data_dict['age']} years\n"
             f"- Sex: {data_dict['sex']}\n"
-            f"- Tumor Size: {data_dict['tumor_size']} cm²\n"
+            f"- Tumor Size: {data_dict['tumor_size']} mm^2\n"
             f"- Health History: {data_dict['health_history']}\n"
             f"- Prior Cancer Treatments: {'Yes' if data_dict['prior_treatments'] else 'No'}\n"
             f"- Allergies: {data_dict['allergies']}\n"
@@ -89,34 +89,3 @@ class GenAI:
             else:
                 self.status = "error"
                 return self.response_text, self.status, self.message_id
-
-
-gen_ai = GenAI()
-
-
-data_dict = {
-    "tumor_size": "3",  # in cm²
-    "age": "34",  # in years
-    "sex": "Female",
-    "health_history": "None",
-    "prior_treatments": False,
-    "allergies": "None",
-    "existing_conditions": "None",
-    "family_history": False,
-}
-
-
-prompt = gen_ai.generate_prompt(data_dict)
-
-
-thread_id = gen_ai.create_thread()
-
-# file_id = gen_ai.upload_image_prediction("results/heatmaps/heatmap.jpg", thread_id)
-
-# print("File ID: ", file_id)
-
-
-response_text, status, message_id = gen_ai.create_message(thread_id, str(prompt))
-
-
-print(response_text)

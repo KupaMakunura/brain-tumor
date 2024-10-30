@@ -57,7 +57,7 @@ class ModelPredictor:
     # draw the boxes on the image
 
     def plot_image(self):
-        return self.result.save(filename="results/predictions/prediction.jpg")
+        return self.result.save(filename="media/results/predictions/prediction.jpg")
 
     # return the labels ,boxes and confidences
 
@@ -79,4 +79,4 @@ class ModelPredictor:
 
         # write the output to the file
 
-        cv2.imwrite("results/heatmaps/heatmap.jpg", im0)
+        cv2.imwrite("media/results/heatmaps/heatmap.jpg", im0)

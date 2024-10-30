@@ -2,11 +2,14 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action as restful_action
+from yaml import serialize
 
 from .models import Patient, PatientImageData
 
 from .serializers import PatientImageDataSerializer, PatientSerializer
 from .yolo_model import ModelPredictor
+from .genai import GenAI
+import json
 
 
 class PatientViewSet(ModelViewSet):
@@ -101,8 +104,53 @@ class PatientViewSet(ModelViewSet):
     @restful_action(detail=True, methods=["GET"], url_path="generate-treatment-plan")
     def generate_treatment_plan(self, request, *args, **kwargs):
 
-        response = {
-            "message": "Treatment plan generated successfully.",
-        }
+        genai = GenAI()
 
-        return Response(response, status=status.HTTP_200_OK)
+        patient_id = kwargs.get("pk")
+
+        try:
+
+            patient = PatientImageData.objects.filter(patient_id=patient_id).first()
+
+            serializer = PatientImageDataSerializer(patient).data
+
+            print(serializer)
+
+            data_dict = {
+                "tumor_size": patient.tumor_size,
+                "age": patient.patient.age,
+                "sex": patient.patient.sex,
+                "health_history": patient.patient.health_history,
+                "prior_treatments": patient.patient.prior_treatments,
+                "allergies": patient.patient.allergies,
+                "existing_conditions": patient.patient.existing_conditions,
+                "family_history": patient.patient.family_history,
+            }
+
+            # create a prompt
+            prompt = genai.generate_prompt(data_dict)
+
+            # create a thread
+
+            thread_id = genai.create_thread()
+
+            # create a message and run the thread
+
+            response_text, message_status, message_id = genai.create_message(
+                thread_id, str(prompt)
+            )
+
+            response = {
+                "message": response_text,
+                "message_status": message_status,
+                "message_id": message_id,
+            }
+
+            return Response(response, status=status.HTTP_200_OK)
+
+        except PatientImageData.DoesNotExist or Exception:
+            response = {
+                "message": "Patient Image Data not found",
+                "found": False,
+            }
+            return Response(response, status=status.HTTP_404_NOT_FOUND)
