@@ -42,13 +42,26 @@ class GenAI:
 
         return thread.id
 
+    # upload a file to OpenAI Thread
+
+    def upload_image_prediction(self, file_path, thread_id):
+
+        file = self.client.files.create(file=open(file_path, "rb"), purpose="user_data")
+
+        return file.id
+
     # create a message to OpenAI and receive it without a stream
 
-    def create_message(self, thread_id, prompt):
+    def create_message(self, thread_id, prompt, file_id=None):
 
         # add message to a thread
         message = self.client.beta.threads.messages.create(
-            thread_id=thread_id, role="user", content=prompt
+            thread_id=thread_id,
+            role="user",
+            content=prompt,
+            attachments=(
+                [{"file_id": file_id, "tools": ["image-analysis"]}] if file_id else None
+            ),
         )
 
         # run a thread to the Medical Assistant
@@ -98,6 +111,10 @@ prompt = gen_ai.generate_prompt(data_dict)
 
 
 thread_id = gen_ai.create_thread()
+
+file_id = gen_ai.upload_image_prediction("results/heatmaps/heatmap.jpg", thread_id)
+
+print("File ID: ", file_id)
 
 
 response_text, status, message_id = gen_ai.create_message(thread_id, str(prompt))
