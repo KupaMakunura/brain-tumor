@@ -1,4 +1,3 @@
-import dis
 from ultralytics import YOLO, solutions
 import cv2
 
@@ -6,14 +5,10 @@ import cv2
 class ModelPredictor:
     def __init__(self, image_path):
         self.model = YOLO("tumor-yolov11n.pt")
-        self.confidences = []
-        self.boxes = []
-        self.class_labels = []
         self.image_path = image_path
+        self.detections = []
 
-    def predict(
-        self,
-    ):
+    def predict(self):
         # set the model params
         return self.model.predict(
             self.image_path,
@@ -26,17 +21,30 @@ class ModelPredictor:
     # set params to the class variables
 
     def set_params(self, results):
-
         for result in results:
-
             boxes = result.boxes.cpu().numpy()
 
-            self.boxes.append(boxes.xyxy)
-            self.confidences.append(boxes.conf)
-            self.class_labels.append(boxes.cls)
+            # Structure detection information
+            for i in range(len(boxes.xyxy)):
+                x_min, y_min, x_max, y_max = boxes.xyxy[i].tolist()
+                width, height = x_max - x_min, y_max - y_min
+                tumor_size = width * height
+                confidence = boxes.conf[i].item()
+                class_label = "tumor" if boxes.cls[i] == 1 else "normal"
 
-            # call the plot method
-            self.plot_image("result.jpg", result)
+                self.detections.append(
+                    {
+                        "bounding_box": {
+                            "x_min": x_min,
+                            "y_min": y_min,
+                            "x_max": x_max,
+                            "y_max": y_max,
+                        },
+                        "confidence": confidence,
+                        "class_label": class_label,
+                        "tumor_size": tumor_size,
+                    }
+                )
 
     # draw the boxes on the image
 
@@ -46,7 +54,7 @@ class ModelPredictor:
     # return the labels ,boxes and confidences
 
     def get_params(self):
-        return self.boxes, self.confidences, self.class_labels
+        return self.detections
 
     def generate_heatmap_explanation(self):
 
@@ -67,11 +75,3 @@ class ModelPredictor:
 
 
 model = ModelPredictor("datasets/yes/y200.jpg")
-
-
-results = model.predict()
-
-model.set_params(results)
-
-# generate the heatmap
-model.generate_heatmap_explanation()
