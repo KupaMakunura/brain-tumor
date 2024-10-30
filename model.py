@@ -1,3 +1,4 @@
+from torch import mode
 from ultralytics import YOLO, solutions
 import cv2
 
@@ -7,10 +8,12 @@ class ModelPredictor:
         self.model = YOLO("tumor-yolov11n.pt")
         self.image_path = image_path
         self.detections = []
+        self.results = None
+        self.result = None
 
     def predict(self):
         # set the model params
-        return self.model.predict(
+        self.results = self.model.predict(
             self.image_path,
             conf=0.25,
             classes=[1],
@@ -18,10 +21,15 @@ class ModelPredictor:
             retina_masks=True,
         )
 
+        return self.results
+
     # set params to the class variables
 
-    def set_params(self, results):
-        for result in results:
+    def set_params(self):
+
+        for result in self.results:
+
+            self.result = result
             boxes = result.boxes.cpu().numpy()
 
             # Structure detection information
@@ -48,8 +56,8 @@ class ModelPredictor:
 
     # draw the boxes on the image
 
-    def plot_image(self, image_path, result):
-        return result.save(filename=image_path)
+    def plot_image(self):
+        return self.result.save(filename="results/predictions/prediction.jpg")
 
     # return the labels ,boxes and confidences
 
@@ -71,7 +79,12 @@ class ModelPredictor:
 
         # write the output to the file
 
-        cv2.imwrite("heatmap_output.jpg", im0)
+        cv2.imwrite("results/heatmaps/heatmap.jpg", im0)
 
 
 model = ModelPredictor("datasets/yes/y200.jpg")
+
+model.predict()
+model.set_params()
+model.plot_image()
+model.generate_heatmap_explanation()
