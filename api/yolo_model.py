@@ -15,7 +15,7 @@ class ModelPredictor:
         # set the model params
         self.results = self.model.predict(
             self.image_path,
-            conf=0.75,
+            conf=0.25,
             classes=[1],
             iou=0.45,
             retina_masks=True,
@@ -80,13 +80,3 @@ class ModelPredictor:
         # write the output to the file
 
         cv2.imwrite("results/heatmaps/heatmap.jpg", im0)
-
-
-model = ModelPredictor("datasets/yes/y200.jpg")
-
-model.predict()
-model.set_params()
-model.plot_image()
-model.generate_heatmap_explanation()
-
-print(model.get_params())
