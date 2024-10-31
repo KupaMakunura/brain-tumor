@@ -57,10 +57,10 @@ class PatientViewSet(ModelViewSet):
             model.set_params()
 
             # plot the image
-            plotted_path = model.plot_image()
+            plotted_path = model.plot_image(patient_id)
 
             # generate heat map explanation
-            model.generate_heatmap_explanation()
+            model.generate_heatmap_explanation(patient_id)
 
             # get the params
 
@@ -89,6 +89,7 @@ class PatientViewSet(ModelViewSet):
             response = {
                 "message": "Prediction generated successfully.",
                 "data": image_data,
+                "heatmap": f"media/results/heatmap/{patient_id}.jpg",
                 "image": plotted_image,
             }
 
@@ -111,8 +112,6 @@ class PatientViewSet(ModelViewSet):
         try:
 
             patient = PatientImageData.objects.filter(patient_id=patient_id).first()
-
-            serializer = PatientImageDataSerializer(patient).data
 
             data_dict = {
                 "tumor_size": patient.tumor_size,

@@ -1,4 +1,3 @@
-from torch import mode
 from ultralytics import YOLO, solutions
 import cv2
 
@@ -15,7 +14,7 @@ class ModelPredictor:
         # set the model params
         self.results = self.model.predict(
             self.image_path,
-            conf=0.25,
+            conf=0.75,
             classes=[1],
             iou=0.45,
             retina_masks=True,
@@ -56,15 +55,15 @@ class ModelPredictor:
 
     # draw the boxes on the image
 
-    def plot_image(self):
-        return self.result.save(filename="media/results/predictions/prediction.jpg")
+    def plot_image(self, patient_id):
+        return self.result.save(filename=f"media/results/predictions/{patient_id}.jpg")
 
     # return the labels ,boxes and confidences
 
     def get_params(self):
         return self.detections
 
-    def generate_heatmap_explanation(self):
+    def generate_heatmap_explanation(self, patient_id):
 
         img = cv2.imread(self.image_path)
 
@@ -79,4 +78,4 @@ class ModelPredictor:
 
         # write the output to the file
 
-        cv2.imwrite("media/results/heatmaps/heatmap.jpg", im0)
+        cv2.imwrite(f"media/results/heatmaps/{patient_id}.jpg", im0)
