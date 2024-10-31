@@ -91,6 +91,7 @@ class PatientViewSet(ModelViewSet):
                 "data": image_data,
                 "heatmap": f"media/results/heatmap/{patient_id}.jpg",
                 "image": plotted_image,
+                "tumor": True,
             }
 
             return Response(response, status=status.HTTP_200_OK)
@@ -101,6 +102,12 @@ class PatientViewSet(ModelViewSet):
                 "found": False,
             }
             return Response(response, status=status.HTTP_404_NOT_FOUND)
+        except IndexError or Exception:
+            response = {
+                "message": "No tumor present in the image",
+                "tumor": False,
+            }
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
     @restful_action(detail=True, methods=["GET"], url_path="generate-treatment-plan")
     def generate_treatment_plan(self, request, *args, **kwargs):
