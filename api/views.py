@@ -9,7 +9,6 @@ from .models import Patient, PatientImageData
 from .serializers import PatientImageDataSerializer, PatientSerializer
 from .yolo_model import ModelPredictor
 from .genai import GenAI
-import json
 
 
 class PatientViewSet(ModelViewSet):
@@ -89,7 +88,7 @@ class PatientViewSet(ModelViewSet):
             response = {
                 "message": "Prediction generated successfully.",
                 "data": image_data,
-                "heatmap": f"media/results/heatmap/{patient_id}.jpg",
+                "heatmap": f"media/results/heatmaps/{patient_id}.jpg",
                 "image": plotted_image,
                 "tumor": True,
             }
@@ -106,6 +105,8 @@ class PatientViewSet(ModelViewSet):
             response = {
                 "message": "No tumor present in the image",
                 "tumor": False,
+                "heatmap": f"media/results/heatmaps/{patient_id}.jpg",
+                "image": f"media/results/predictions/{patient_id}.jpg",
             }
             return Response(response, status=status.HTTP_400_BAD_REQUEST)
 
