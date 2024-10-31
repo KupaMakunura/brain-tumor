@@ -2,7 +2,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import action as restful_action
-from yaml import serialize
+
 
 from .models import Patient, PatientImageData
 
@@ -89,7 +89,7 @@ class PatientViewSet(ModelViewSet):
             response = {
                 "message": "Prediction generated successfully.",
                 "data": image_data,
-                "plotted_image": plotted_image,
+                "image": plotted_image,
             }
 
             return Response(response, status=status.HTTP_200_OK)
@@ -113,8 +113,6 @@ class PatientViewSet(ModelViewSet):
             patient = PatientImageData.objects.filter(patient_id=patient_id).first()
 
             serializer = PatientImageDataSerializer(patient).data
-
-            print(serializer)
 
             data_dict = {
                 "tumor_size": patient.tumor_size,
