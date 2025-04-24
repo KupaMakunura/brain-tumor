@@ -21,15 +21,12 @@ class ModelPredictor:
             "model": "https://hub.ultralytics.com/models/9KfmbQpWm588VVkYP03h",
             "imgsz": 640,
             "conf": 0.25,
-            "iou": 0.45
+            "iou": 0.45,
         }
 
         with open(self.image_path, "rb") as f:
             response = requests.post(
-                self.api_url,
-                headers=headers,
-                data=data,
-                files={"file": f}
+                self.api_url, headers=headers, data=data, files={"file": f}
             )
 
         response.raise_for_status()
@@ -38,7 +35,6 @@ class ModelPredictor:
     def set_params(self):
         if not self.results:
             return
-
 
         for image in self.results.get("images", []):
             for detection in image.get("results", []):
@@ -49,18 +45,19 @@ class ModelPredictor:
                     height = box["y2"] - box["y1"]
                     tumor_size = width * height
 
-                    self.detections.append({
-                        "bounding_box": {
-                            "x_min": box["x1"],
-                            "y_min": box["y1"],
-                            "x_max": box["x2"],
-                            "y_max": box["y2"],
-                        },
-                        "confidence": detection["confidence"],
-                        "class_label": "tumor",
-                        "tumor_size": tumor_size,
-                    })
-
+                    self.detections.append(
+                        {
+                            "bounding_box": {
+                                "x_min": box["x1"],
+                                "y_min": box["y1"],
+                                "x_max": box["x2"],
+                                "y_max": box["y2"],
+                            },
+                            "confidence": detection["confidence"],
+                            "class_label": "tumor",
+                            "tumor_size": tumor_size,
+                        }
+                    )
 
     def plot_image(self):
         if not self.results or not self.detections:
@@ -77,12 +74,7 @@ class ModelPredictor:
 
         for detection in self.detections:
             box = detection["bounding_box"]
-            boxes.append([
-                box["x_min"],
-                box["y_min"],
-                box["x_max"],
-                box["y_max"]
-            ])
+            boxes.append([box["x_min"], box["y_min"], box["x_max"], box["y_max"]])
             confidences.append(detection["confidence"])
             class_ids.append(0)  # 0 for tumor class
 
@@ -90,13 +82,11 @@ class ModelPredictor:
         detections = sv.Detections(
             xyxy=np.array(boxes),
             confidence=np.array(confidences),
-            class_id=np.array(class_ids)
+            class_id=np.array(class_ids),
         )
 
         # Create box annotator
-        box_annotator = sv.BoxAnnotator(
-            thickness=2
-        )
+        box_annotator = sv.BoxAnnotator(thickness=2)
         label_annotator = sv.LabelAnnotator()
 
         # Draw detections
@@ -108,12 +98,12 @@ class ModelPredictor:
         frame = label_annotator.annotate(
             scene=frame,
             detections=detections,
-            labels=[f"tumor {confidence:.2f}" for confidence in confidences]
+            labels=[f"tumor {confidence:.2f}" for confidence in confidences],
         )
 
+        self.result_image_path = f"uploads/predictions/{uuid.uuid4()}.jpg"
+
         # Save annotated image
-        cv2.imwrite(f"uploads/predictions/{uuid.uuid4()}.jpg", frame)
+        cv2.imwrite(self.result_image_path, frame)
 
         # Save result image path
-
-        self.result_image_path = f"uploads/predictions/{uuid.uuid4()}.jpg"

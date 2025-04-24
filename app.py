@@ -34,7 +34,7 @@ async def predict(image: UploadFile = File(...)):
         # Validate file type
         if not image.content_type.startswith("image/"):
             response = {
-                "file": False
+                "file": False,
             }
             return JSONResponse(response, status_code=400)
 
@@ -56,7 +56,7 @@ async def predict(image: UploadFile = File(...)):
 
             if predictor.detections is None:
                 response = {
-                    "predictions": False
+                    "predictions": False,
                 }
 
                 return JSONResponse(response, status_code=400)
@@ -70,22 +70,25 @@ async def predict(image: UploadFile = File(...)):
                 "data": {
                     "detections": predictor.detections,
                     "original_image": f"/uploads/images/{image_name}",
-                    "prediction_image": predictor.result_image_path.replace("uploads",
-                                                                            "/uploads") if predictor.result_image_path else None
-                }
+                    "prediction_image": (
+                        predictor.result_image_path.replace("uploads", "/uploads")
+                        if predictor.result_image_path
+                        else None
+                    ),
+                },
             }
             return JSONResponse(response, status_code=200)
 
         except Exception as e:
 
             response = {
-                "predictions": False
+                "predictions": False,
             }
             return JSONResponse(response, status_code=400)
 
     except Exception as e:
 
         response = {
-            "upload": False
+            "upload": False,
         }
         return JSONResponse(response, status_code=400)
