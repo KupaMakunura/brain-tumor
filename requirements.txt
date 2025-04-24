@@ -1,4 +1,4 @@
-fastapi~=0.115.12
+fastapi[standard]
 opencv-python~=4.11.0.86
 numpy~=2.2.5
 requests~=2.32.3
